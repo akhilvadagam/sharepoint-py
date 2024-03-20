@@ -1,0 +1,24 @@
+import requests
+
+# SharePoint API endpoint for fetching gatherer status data
+api_endpoint = "https://your-sharepoint-site.com/api/endpoint"
+headers = {
+    "Authorization": "Bearer your_access_token",  #authentication
+}
+
+response = requests.get(api_endpoint, headers=headers)
+
+if response.status_code == 200:
+    data = response.json()
+    back_off_reason = data.get("KQP_OFFICE_SEARCH_GATHERER.Reason_to_Back_Off", 0)
+
+    # Check if the Reason_to_Back_Off value is 1 (indicating high system IO traffic)
+    if back_off_reason == 1:
+        print("CRITICAL - Crawling has been paused due to high system IO traffic in SharePoint.")
+        exit(2)  # Exit with a critical status code
+    else:
+        print("OK - Crawling is running without issues in SharePoint.")
+        exit(0)  # Exit with an OK status code
+else:
+    print(f"UNKNOWN - Unable to fetch gatherer status data from SharePoint. Status code: {response.status_code}")
+    exit(3)  # Exit with an unknown status code

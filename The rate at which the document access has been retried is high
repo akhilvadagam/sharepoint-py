@@ -1,0 +1,24 @@
+import requests
+
+# SharePoint API endpoint for fetching gatherer projects data
+api_endpoint = "https://your-sharepoint-site.com/api/endpoint"
+headers = {
+    "Authorization": "Bearer your_access_token",  # You may need to handle authentication
+}
+
+response = requests.get(api_endpoint, headers=headers)
+
+if response.status_code == 200:
+    data = response.json()
+    retries_rate = data.get("KQP_OFFICE_SEARCH_GATHERER_PROJECTS.Retries_Rate", 0)
+
+    # Check if the Retries_Rate is greater than 5
+    if retries_rate > 5:
+        print("CRITICAL - The rate of document access retries is high in SharePoint.")
+        exit(2)  # Exit with a critical status code
+    else:
+        print("OK - Document access retries rate is within acceptable limits in SharePoint.")
+        exit(0)  # Exit with an OK status code
+else:
+    print(f"UNKNOWN - Unable to fetch gatherer projects data from SharePoint. Status code: {response.status_code}")
+    exit(3)  # Exit with an unknown status code

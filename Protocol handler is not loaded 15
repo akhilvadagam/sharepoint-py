@@ -1,0 +1,40 @@
+import requests
+
+# SharePoint API endpoint for fetching event log data
+api_endpoint = "https://your-sharepoint-site.com/api/endpoint"
+headers = {
+    "Authorization": "Bearer your_access_token",  #authentication
+}
+
+response = requests.get(api_endpoint, headers=headers)
+
+if response.status_code == 200:
+    data = response.json()
+
+    # Check if there are any events that match the specified criteria
+    protocol_handler_events = [
+        event for event in data if
+        (
+            (
+                event.get("Event_Source") == 'Office Server Search' and
+                event.get("Event_ID") == 2484 and
+                event.get("Event_Category") == 'Gatherer'
+            )
+            or
+            (
+                event.get("Event_Source") == 'Office Server Search' and
+                event.get("Event_ID") == 2483 and
+                event.get("Event_Category") == 'Gatherer'
+            )
+        )
+    ]
+
+    if protocol_handler_events:
+        print("CRITICAL - Protocol handler is not loaded in SharePoint.")
+        exit(2)  # Exit with a critical status code
+    else:
+        print("OK - Protocol handler is loaded in SharePoint.")
+        exit(0)  # Exit with an OK status code
+else:
+    print(f"UNKNOWN - Unable to fetch event log data from SharePoint. Status code: {response.status_code}")
+    exit(3)  # Exit with an unknown status code

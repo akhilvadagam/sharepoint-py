@@ -1,0 +1,31 @@
+import requests
+
+# SharePoint API endpoint for fetching service availability data
+api_endpoint = "https://your-sharepoint-site.com/api/endpoint"
+headers = {
+    "Authorization": "Bearer your_access_token",  #authentication
+}
+
+response = requests.get(api_endpoint, headers=headers)
+
+if response.status_code == 200:
+    data = response.json()
+
+    # Check if there is a service with name 'SPTrace' and status 'DOWN'
+    matching_services = [
+        service for service in data if
+        (
+            service.get("Name") == 'SPTrace' and
+            service.get("Status") == 'DOWN'
+        )
+    ]
+
+    if matching_services:
+        print("CRITICAL - Windows SharePoint Services Tracing service is not running.")
+        exit(2)  # Exit with a critical status code
+    else:
+        print("OK - Windows SharePoint Services Tracing service is running.")
+        exit(0)  # Exit with an OK status code
+else:
+    print(f"UNKNOWN - Unable to fetch service availability data from SharePoint. Status code: {response.status_code}")
+    exit(3)  # Exit with an unknown status code

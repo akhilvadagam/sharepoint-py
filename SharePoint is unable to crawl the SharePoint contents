@@ -1,0 +1,24 @@
+import requests
+
+# SharePoint API endpoint for fetching gatherer status data
+api_endpoint = "https://your-sharepoint-site.com/api/endpoint"
+headers = {
+    "Authorization": "Bearer your_access_token",  #authentication
+}
+
+response = requests.get(api_endpoint, headers=headers)
+
+if response.status_code == 200:
+    data = response.json()
+    documents_delayed_retry = data.get("KQP_SEARCH_GATHERER.Documents_Delayed_Retry", 0)
+
+    # Check if the number of delayed retries is greater than 0
+    if documents_delayed_retry > 0:
+        print("CRITICAL - SharePoint is unable to crawl SharePoint contents.")
+        exit(2)  # Exit with a critical status code
+    else:
+        print("OK - SharePoint is successfully crawling contents.")
+        exit(0)  # Exit with an OK status code
+else:
+    print(f"UNKNOWN - Unable to fetch gatherer status data from SharePoint. Status code: {response.status_code}")
+    exit(3)  # Exit with an unknown status code

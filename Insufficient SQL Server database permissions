@@ -1,0 +1,34 @@
+import requests
+
+# SharePoint API endpoint for fetching event log data
+api_endpoint = "https://your-sharepoint-site.com/api/endpoint"
+headers = {
+    "Authorization": "Bearer your_access_token",  #authentication
+}
+
+response = requests.get(api_endpoint, headers=headers)
+
+if response.status_code == 200:
+    data = response.json()
+
+    # Check if there are any events that match the specified criteria
+    insufficient_permissions_events = [
+        event for event in data if
+        (
+            (event.get("Event_Source") == 'Windows SharePoint Services 3' and
+             event.get("Event_ID") == 5214)
+            or
+            (event.get("Event_Source") == 'Microsoft-SharePoint Products-SharePoint Foundation' and
+             event.get("Event_ID") == 5214)
+        )
+    ]
+
+    if insufficient_permissions_events:
+        print("CRITICAL - Insufficient SQL Server database permissions in SharePoint.")
+        exit(2)  # Exit with a critical status code
+    else:
+        print("OK - SQL Server database permissions are sufficient in SharePoint.")
+        exit(0)  # Exit with an OK status code
+else:
+    print(f"UNKNOWN - Unable to fetch event log data from SharePoint. Status code: {response.status_code}")
+    exit(3)  # Exit with an unknown status code

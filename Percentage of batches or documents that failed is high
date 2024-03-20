@@ -1,0 +1,25 @@
+import requests
+
+# SharePoint API endpoint for fetching the required data
+api_endpoint = "https://your-sharepoint-site.com/api/endpoint"
+headers = {
+    "Authorization": "Bearer your_access_token",  #authentication
+}
+
+response = requests.get(api_endpoint, headers=headers)
+
+if response.status_code == 200:
+    data = response.json()
+    items_fail_percent = data.get("KQP_OFFICE_SEARCH_FAST_CONTENT_PLUGIN.Items_Fail_PerCent", 0)
+    batches_fail_percent = data.get("KQP_OFFICE_SEARCH_FAST_CONTENT_PLUGIN.Batches_Fail_PerCent", 0)
+
+    # Check if either condition is met
+    if items_fail_percent >= 50 or batches_fail_percent >= 50:
+        print("CRITICAL - Percentage of failed items or batches is high.")
+        exit(2)  # Exit with a critical status code
+    else:
+        print("OK - Percentage of failed items and batches is within acceptable limits.")
+        exit(0)  # Exit with an OK status code
+else:
+    print(f"UNKNOWN - Unable to fetch data from SharePoint. Status code: {response.status_code}")
+    exit(3)  # Exit with an unknown status code
